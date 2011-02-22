@@ -2,23 +2,29 @@
 
 class Tree
 	protected
+
+		# Insert new node
 		def Insert(key, data)
+			# If we run it without parameters
 			return if key.nil? or data.nil?
 
+			# If we are at root
 			if @key.nil?
-				@parent = nil
 				@key = key
 				@data = data
 				return self
 			end
 
 			if key < @key
+				# Go to left branch
 				if @left.nil?
+					# If we've found where to insert
 					return @left = Tree.new(self, key, data)
 				else
 					return @left.Insert key, data
 				end
 			else
+				# Go to right branch
 				if @right.nil?
 					return @right = Tree.new(self, key, data)
 				else
@@ -27,6 +33,7 @@ class Tree
 			end
 		end
 
+		# Remove node
 		def Remove(key)
 			return if key.nil?
 
@@ -36,6 +43,8 @@ class Tree
 				return @right.Remove key unless @right.nil?
 			else
 				x = nil
+				# We must found the node next to which we wanna delete
+				# or previous, if there's no next
 				if !@right.nil?
 					x = @right
 					x = x.left until x.left.nil?
@@ -44,12 +53,17 @@ class Tree
 					x = x.right until x.right.nil?
 				end
 				if x.nil?
+				# If our node hasn't children
+					# If our node is root
 					return @key = nil if @parent.nil?
+					# If our node is left child
 					return @parent.left = nil if @parent.left == self
 					return @parent.right = nil
 				else
+					# Copy data from next (or previous) node
 					@key = x.key
 					@data = x.data
+					# Delete node x
 					return x.parent.left = nil if x.parent.left == x
 					return x.parent.right = nil if x.parent.right == x
 				end
@@ -57,6 +71,7 @@ class Tree
 		end
 
 		def Search(key)
+			# Find and returns node
 			return if key.nil?
 
 			if key < @key
