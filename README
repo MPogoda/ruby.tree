@@ -1,0 +1,25 @@
+== About
+A simple for working with tree's
+
+== Feautures
+none. Simple insert, remove and fetch methods
+
+== Usage
+
+require 'tree'
+require 'print_tree'
+
+root = Tree.new
+
+root.insert 50, "a"
+root.insert 25, 32
+root.insert 32, "c"
+root.insert 63, "d"
+root.insert 62, "e"
+root.insert 23, "ds"
+root.remove 25
+root.insert 64, "asd"
+
+root.print_tree "tree"
+system("feh tree.png")
+

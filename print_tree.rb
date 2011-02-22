@@ -21,10 +21,10 @@ class Tree
 		end
 
 	public
-		def print_tree
+		def print_tree(filename)
 			GraphViz.new(:G, :type => :digraph, :truecolor => true) {|g|
 				mnodes g
-				g.output :png => 'tree.png'
+				g.output :png => filename+".png"
 			}
 		end
 end
