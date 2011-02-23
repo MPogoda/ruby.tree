@@ -3,6 +3,7 @@
 
 require 'graphviz'
 require 'tree'
+require 'redblacktree'
 
 class Tree
 	protected
@@ -26,5 +27,23 @@ class Tree
 				mnodes g
 				g.output :png => filename+".png"
 			}
+		end
+end
+
+class RedBlackTree < Tree
+	protected
+		def mnodes(g)
+			return if @key.nil?
+			root = g.add_node "#{@key}"
+			root[:color] = :red if @red
+			if !@left.nil?
+				left = @left.mnodes g
+				g.add_edge root, left, :color => :green
+			end
+			if !@right.nil?
+				right = @right.mnodes g
+				g.add_edge root, right, :color => :blue
+			end
+			return root
 		end
 end

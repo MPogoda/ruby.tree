@@ -3,6 +3,55 @@
 class Tree
 	protected
 
+		def copydata(node)
+			@key = node.key
+			@data = node.data
+		end
+
+		def copy(node)
+			@left = node.left
+			@right = node.right
+			copydata node
+		end
+
+		def rotate_left
+			return if @right.nil?
+
+			me = self.class.new
+			me.copy self
+			x = self.class.new
+			x.copy @right
+
+			@left.parent = me unless @left.nil?
+			x.left.parent = me unless x.left.nil?
+			me.right = @right.left
+			x.left = me
+
+			copy x
+
+			@right.parent = self unless @right.nil?
+			@left.parent = self unless @left.nil?
+		end
+
+		def rotate_right
+			return if @left.nil?
+
+			me = self.class.new
+			me.copy self
+			x = self.class.new
+			x.copy @left
+
+			@right.parent = me unless @right.nil?
+			x.right.parent = me unless x.right.nil?
+			me.left = @left.right
+			x.right = me
+
+			copy x
+
+			@right.parent = self unless @right.nil?
+			@left.parent = self unless @left.nil?
+		end
+
 		# Insert new node
 		def Insert(key, data)
 			# If we run it without parameters
@@ -12,25 +61,24 @@ class Tree
 			if @key.nil?
 				@key = key
 				@data = data
-				return self
-			end
-
-			if key < @key
+			elsif key < @key
 				# Go to left branch
 				if @left.nil?
 					# If we've found where to insert
-					return @left = Tree.new(self, key, data)
+					@left = self.class.new(self, key, data)
 				else
-					return @left.Insert key, data
+					@left.Insert key, data
 				end
 			else
 				# Go to right branch
 				if @right.nil?
-					return @right = Tree.new(self, key, data)
+					@right = self.class.new(self, key, data)
 				else
-					return @right.Insert key, data
+					@right.Insert key, data
 				end
 			end
+
+			return self if @parent.nil?
 		end
 
 		# Remove node
@@ -38,9 +86,9 @@ class Tree
 			return if key.nil?
 
 			if key < @key
-				return @left.Remove key unless @left.nil?
+				@left.Remove key unless @left.nil?
 			elsif key > @key
-				return @right.Remove key unless @right.nil?
+				@right.Remove key unless @right.nil?
 			else
 				x = nil
 				# We must found the node next to which we wanna delete
@@ -55,19 +103,28 @@ class Tree
 				if x.nil?
 				# If our node hasn't children
 					# If our node is root
-					return @key = nil if @parent.nil?
-					# If our node is left child
-					return @parent.left = nil if @parent.left == self
-					return @parent.right = nil
+					if @parent.nil?
+						@key = nil
+					elsif @parent.left == self
+						# If our node is left child
+						@parent.left = nil
+					else
+						@parent.right = nil
+					end
 				else
 					# Copy data from next (or previous) node
 					@key = x.key
 					@data = x.data
 					# Delete node x
-					return x.parent.left = nil if x.parent.left == x
-					return x.parent.right = nil if x.parent.right == x
+					if x.parent.left == x
+						x.parent.left = nil
+					else
+						x.parent.right = nil
+					end
 				end
 			end
+
+			return self if @parent.nil?
 		end
 
 		def Search(key)
@@ -83,8 +140,7 @@ class Tree
 			end
 		end
 
-		attr_accessor :left, :right, :key, :data
-		attr_reader :parent
+		attr_accessor :left, :right, :key, :data, :parent
 	public
 
 		def initialize(parent = nil, key = nil, data = nil)
