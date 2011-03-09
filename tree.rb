@@ -151,6 +151,10 @@ class Tree
 			@right = nil
 		end
 
+		def empty?
+			return @key.nil?
+		end
+
 		def insert(key, data)
 			return Insert key, data
 		end
