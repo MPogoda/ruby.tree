@@ -2,7 +2,6 @@
 # Visualize our tree
 
 require 'graphviz'
-require 'tree'
 require 'redblacktree'
 
 class Tree
@@ -12,18 +11,22 @@ class Tree
 			root = g.add_node "#{@key}"
 			if !@left.nil?
 				left = @left.mnodes g
-				g.add_edge root, left, :color => :green
+			else
+				left = g.add_node "nill#{@key}", :shape => :point
 			end
+			g.add_edge root, left
 			if !@right.nil?
 				right = @right.mnodes g
-				g.add_edge root, right, :color => :blue
+			else
+				right = g.add_node "nilr#{@key}", :shape => :point
 			end
+			g.add_edge root, right
 			return root
 		end
 
 	public
 		def print_tree(filename)
-			GraphViz.new(:G, :type => :digraph, :truecolor => true) {|g|
+			GraphViz.new(:G, :type => :graph, :truecolor => true) {|g|
 				mnodes g
 				g.output :png => filename+".png"
 			}
@@ -33,17 +36,8 @@ end
 class RedBlackTree < Tree
 	protected
 		def mnodes(g)
-			return if @key.nil?
-			root = g.add_node "#{@key}"
+			root = super g
 			root[:color] = :red if @red
-			if !@left.nil?
-				left = @left.mnodes g
-				g.add_edge root, left, :color => :green
-			end
-			if !@right.nil?
-				right = @right.mnodes g
-				g.add_edge root, right, :color => :blue
-			end
 			return root
 		end
 end

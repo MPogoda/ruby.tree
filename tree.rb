@@ -55,7 +55,7 @@ class Tree
 		# Insert new node
 		def Insert(key, data)
 			# If we run it without parameters
-			return if key.nil? or data.nil?
+			return self if key.nil? or data.nil?
 
 			# If we are at root
 			if @key.nil?
@@ -83,48 +83,48 @@ class Tree
 
 		# Remove node
 		def Remove(key)
-			return if key.nil?
+			y = Search key
+			
+			return self if y.nil?
+			y.Do_Remove
+			return self
+		end
 
-			if key < @key
-				@left.Remove key unless @left.nil?
-			elsif key > @key
-				@right.Remove key unless @right.nil?
-			else
-				x = nil
-				# We must found the node next to which we wanna delete
-				# or previous, if there's no next
-				if !@right.nil?
-					x = @right
-					x = x.left until x.left.nil?
-				elsif !@left.nil?
-					x = @left
-					x = x.right until x.right.nil?
-				end
-				if x.nil?
-				# If our node hasn't children
-					# If our node is root
-					if @parent.nil?
-						@key = nil
-					elsif @parent.left == self
-						# If our node is left child
-						@parent.left = nil
-					else
-						@parent.right = nil
-					end
+		def Do_Remove
+			x = nil
+			# We must found the node next to which we wanna delete
+			# or previous, if there's no next
+			if !@left.nil? and !@right.nil?
+				x = @right
+				x = x.left until x.left.nil?
+			elsif !@left.nil?
+				x = @left
+			elsif !@right.nil?
+				x = @right
+			end
+			if x.nil?
+			# If our node hasn't children
+				# If our node is root
+				if @parent.nil?
+					@key = nil
+				elsif @parent.left == self
+					# If our node is left child
+					@parent.left = nil
 				else
-					# Copy data from next (or previous) node
-					@key = x.key
-					@data = x.data
-					# Delete node x
-					if x.parent.left == x
-						x.parent.left = nil
-					else
-						x.parent.right = nil
-					end
+					@parent.right = nil
+				end
+			else
+				# Copy data from next (or previous) node
+				copydata x
+				# Delete node x
+				if x.parent.left == x
+					x.parent.left = nil
+				else
+					x.parent.right = nil
 				end
 			end
 
-			return self if @parent.nil?
+			return self
 		end
 
 		def Search(key)
@@ -155,8 +155,8 @@ class Tree
 			return Insert key, data
 		end
 
-		def remove(key)
-			return Remove key
+		def remove(data)
+			return Remove data
 		end
 	
 		def fetch(key)

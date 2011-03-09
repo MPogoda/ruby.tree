@@ -51,7 +51,6 @@ class RedBlackTree < Tree
 
 						x.parent.red = true
 						x.red = false
-
 						x = x.parent
 
 						if lp
@@ -70,12 +69,123 @@ class RedBlackTree < Tree
 			return self if @parent.nil?
 		end
 
-		def Remove(key)
-			return if key.nil?
-			super key
+		def Do_Remove
+			foo = nil	# Node we'll delete
+			lc = false # Is our node left child, used for deleting node without children
+			bar = nil # Child of foo
 
+			# If our node doesn't have both children
+			if @left.nil? or @right.nil?
+				# Then we'll delete this node
+				foo = self
+			else
+				# Find successor of our node
+				# (node in right subtree without left child)
+				foo = @right
+				foo = foo.left until foo.left.nil?
+			end
 
-			return self if @parent.nil?
+			# Chose the child of foo
+			if !foo.left.nil?
+				bar = foo.left
+			else
+				bar = foo.right
+			end
+
+			bar.parent = foo.parent unless bar.nil?
+			if foo.parent.nil? # If deleting root
+				if bar.nil? # If there is no children
+					@key = nil
+				else
+					copy bar
+				end
+			else
+				if foo == foo.parent.left
+					foo.parent.left = bar
+					lc = true
+				else
+					foo.parent.right = bar
+				end
+			end
+
+			# Copy the data
+			if foo != self
+				@data = foo.data
+				@key = foo.key
+			end
+
+			# If we've deleted black node
+			if !foo.red?
+				# Hack, if we've deleted node without children
+				if bar.nil?
+					bar = foo
+					bar.data = nil # Ouch
+				end
+
+				until bar.nil? or bar.parent.nil? or bar.red?
+					lc = (bar == bar.parent.left) unless bar.data.nil?
+
+					# Choose brother
+					if lc
+						foo = bar.parent.right
+					else
+						foo = bar.parent.left
+					end
+					
+					if !foo.nil? # If we have brother
+						
+						if foo.red?
+							foo.red = false
+							bar.parent.red = true
+
+							if lc
+								bar.parent.rotate_left
+								foo = bar.parent.right
+							else
+								bar.parent.rotate_right
+								foo = bar.parent.left
+							end
+
+						end #foo.red?
+
+						if (foo.left.nil? or !foo.left.red?) and (foo.right.nil? or !foo.right.red?)
+							foo.red = true
+							bar = bar.parent
+						else
+
+							if lc and (foo.right.nil? or !foo.right.red?)
+								foo.left.red = false unless foo.left.nil?
+								foo.red = true
+								foo.rotate_right
+								foo = bar.parent.right
+							end
+
+							if !lc and (foo.left.nil? or !foo.left.red?)
+								foo.right.red = false unless foo.right.nil?
+								foo.red = true
+								foo.rotate_left
+								foo = bar.parent.left
+							end
+
+							foo.red = bar.parent.red?
+							bar.parent.red = false
+
+							if lc
+								foo.right.red = false unless foo.right.nil?
+								bar.parent.rotate_left
+							else
+								foo.left.red = false unless foo.left.nil?
+								bar.parent.rotate_right
+							end
+
+							bar = bar.parent until bar.parent.nil?
+						end
+					end #!foo.nil?
+				end # until 
+				bar.red = false unless bar.nil?
+			end #!foo.red?
+
+			foo.red = false if foo.parent.nil?
 		end
 
 		attr_writer :red, :parent
@@ -90,9 +200,4 @@ class RedBlackTree < Tree
 			super parent, key, data
 			@red = (parent != nil)
 		end
-
-		def insert(key, data)
-			return Insert key, data
-		end
-
 end
