@@ -1,43 +1,32 @@
-# vim: ts=2 sw=2
+# vim: tabstop=2 shiftwidth=2 softtabstop=2
 # Visualize our tree
 
 require 'graphviz'
-require 'redblacktree'
+require 'rbtree'
 
-class Tree
-	protected
-		def mnodes(g)
-			return if @key.nil?
-			root = g.add_node "#{@key}"
-			if !@left.nil?
-				left = @left.mnodes g
-			else
-				left = g.add_node "nill#{@key}", :shape => :point
-			end
-			g.add_edge root, left
-			if !@right.nil?
-				right = @right.mnodes g
-			else
-				right = g.add_node "nilr#{@key}", :shape => :point
-			end
-			g.add_edge root, right
-			return root
-		end
+class RedBlackTree
+  class RedBlackTreeNode
+    def mnodes g
+      root = g.add_node "#{@data[:key]}"
+      root[:color] = :red if @red
+      left = if @left.nil?: g.add_node "nill#{@data[:key]}", :shape => :point
+             else           @left.mnodes g
+             end
+      g.add_edge root, left
 
-	public
-		def print_tree(filename)
-			GraphViz.new(:G, :type => :graph, :truecolor => true) {|g|
-				mnodes g
-				g.output :png => filename+".png"
-			}
-		end
-end
+      right = if @right.nil?: g.add_node "nilr#{@data[:key]}", :shape => :point
+              else            @right.mnodes g
+              end
+      g.add_edge root, right
 
-class RedBlackTree < Tree
-	protected
-		def mnodes(g)
-			root = super g
-			root[:color] = :red if @red
-			return root
-		end
+      root
+    end
+  end
+
+  def print_tree(filename)
+    GraphViz.new(:G, :type => :graph, :truecolor => true) { |g|
+      @root.mnodes g
+      g.output :png => filename + ".png"
+    }
+  end
 end
